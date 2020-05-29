@@ -2,7 +2,15 @@ from tkinter import *
 from tkinter import messagebox as mb
 from threading import Timer
 import random
+import pygame
 
+pygame.init()
+sndFile = 'snd/Sound08078.wav'
+soundWall = pygame.mixer.Sound(sndFile)
+sndFile1 = 'snd/Sound08428.wav'
+soundLose = pygame.mixer.Sound(sndFile1)
+sndFile2 = 'snd/Sound19349.wav'
+soundHit = pygame.mixer.Sound(sndFile2)
 ballr = 5
 
 #Load level
@@ -52,6 +60,7 @@ def DoWinOrLose(end):
             answer = mb.showinfo(title="Game Over!", message="You win!")
             return True
     elif(end == False):
+        soundLose.play()
         answer = mb.showinfo(title="Game Over!", message="You lose! Your Store: " + str(score))
 
 #Platform move
@@ -94,13 +103,11 @@ def keypress(event):
             halfplatform -= 10
             DrawPlatform(platform)
 
-#Recolor all cercles
+#Recolor blue cells
 def recolorCells(colrec):
     for i in colrec.keys():
         if (colrec[i] == "blue"):
             c.create_rectangle(i[0] - 20, i[1] - 20, i[0], i[1], fill='blue')
-        else:
-            c.create_rectangle(i[0] - 20, i[1] - 20, i[0], i[1], fill='white', outline = 'white')
 
 #Ball flying
 def BallFlying():
@@ -113,6 +120,7 @@ def BallFlying():
     value = [0.5, 1, 2,]
     change = False
     if(ball[1] + ballr >= platform[1] and ball[0] - ballr <= platform[2] and ball[0] + ballr >= platform[0]):
+        soundWall.play()
         v[1] = -v[1]
         flysign = random.choice(sign)
         flyvalue = random.choice(value)
@@ -130,17 +138,17 @@ def BallFlying():
                     v[0] += flyvalue
     elif(ball[0] - ballr <= 0 or ball[0] + ballr >= 600):
         v[0] = -v[0]
+        soundWall.play()
     elif(ball[1] - ballr <= 0 and change == False):
         v[1] = -v[1]
+        soundWall.play()
     recolorcells = False
-
     for i in colrec.keys():
         x = i[0]
         y = i[1]
         if(recolorcells == False):
             if(abs(ball[0] - x) < ballr + 5 and abs(ball[1] - y) < ballr + 5 and v[1] > 0):
                 recolorcells = True
-
         isHit = False
         if(colrec[i] == "blue"):
             if(ball[1] - ballr <= y and ball[1] - ballr > y - 20 and ball[0] - ballr >= x - 20 and ball[0] + ballr <= x):
@@ -156,7 +164,8 @@ def BallFlying():
                 v[1] = -v[1]
                 isHit = True
         if(isHit):
-            c.create_rectangle(x - 20, y - 20, x, y, fill='white')
+            soundHit.play()
+            c.create_rectangle(x - 20, y - 20, x, y, fill='white', outline = 'white')
             colrec[i] = "white"
             score += 1
             DrawScore(score)
