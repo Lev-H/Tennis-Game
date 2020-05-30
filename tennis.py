@@ -13,6 +13,14 @@ sndFile2 = 'snd/Sound19349.wav'
 soundHit = pygame.mixer.Sound(sndFile2)
 ballr = 5
 
+#Change best score
+def ChangeBestScore():
+    global score
+    global bestScore
+    if(int(score) > int(bestScore)):
+        f = open('best score.txt', 'w')
+        f.write(str(score))
+
 #Load level
 def LoadLvl(lvl):
     cells = {}
@@ -50,6 +58,7 @@ def IsWin(colrec, ball):
 def DoWinOrLose(end):
     global lvl
     global colrec
+    global bestScore
     if(end == True):
         if(lvl < 5):
             answer = mb.showinfo(title="Game Over!", message="Level " + str(lvl) + "passed!")
@@ -57,11 +66,13 @@ def DoWinOrLose(end):
             colrec = LoadLvl(lvl)
             DrawLevel(colrec)
         else:
+            ChangeBestScore()
             answer = mb.showinfo(title="Game Over!", message="You win!")
             return True
     elif(end == False):
         soundLose.play()
-        answer = mb.showinfo(title="Game Over!", message="You lose! Your Store: " + str(score))
+        ChangeBestScore()
+        answer = mb.showinfo(title="Game Over!", message="You lose! Your Store: " + str(score) + " Best score: " + str(bestScore))
 
 #Platform move
 def DrawPlatform(platform):
@@ -82,7 +93,7 @@ def My_create_circle(x, y, color):
 
 #Draw store
 def DrawScore(count):
-    l.configure(text = "Store: " + str(count))
+    l.configure(text='Store: ' + str(score) + "    Best score: " + str(bestScore))
 
 #Platform move for A or D click
 def keypress(event):
@@ -207,7 +218,12 @@ DrawBall(ball)
 
 #Make score
 score = 0
-l = Label(root, text='Store: ' + str(score), width=25, height=3, bg='#ff0000', fg='#000000',font=("Comic Sans MS", 30, "bold"))
+bestScore = 0
+f = open('best score.txt')
+for line in f:
+    bestScore = line
+f.close()
+l = Label(root, text='Store: ' + str(score) + "    Best score: " + str(bestScore), width=30, height=3, bg='#ff0000', fg='#000000',font=("Comic Sans MS", 25, "bold"))
 l.pack()
 c.pack()
 
